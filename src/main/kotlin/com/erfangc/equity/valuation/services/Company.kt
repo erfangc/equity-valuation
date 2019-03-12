@@ -6,8 +6,8 @@ import com.erfangc.equity.valuation.yahoo.YahooFinance
 data class Company(
     val ticker: String,
     val name: String,
-    val sector: String,
-    val industry: String,
-    val yahooFinance: YahooFinance,
+    val sector: String? = null,
+    val industry: String? = null,
+    val yahooFinance: YahooFinance? = null,
     val derived: Derived = Derived()
 )

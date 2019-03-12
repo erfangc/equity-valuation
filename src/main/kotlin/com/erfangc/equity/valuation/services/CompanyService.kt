@@ -15,7 +15,7 @@ import org.elasticsearch.common.xcontent.XContentType
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 
-class CompanyService : Closeable {
+class CompanyService(elasticsearchHost: HttpHost) : Closeable {
 
     private val objectMapper =
         jacksonObjectMapper()
@@ -25,11 +25,7 @@ class CompanyService : Closeable {
 
     private val logger = LoggerFactory.getLogger(CompanyService::class.java)
 
-    private val elasticsearch = RestHighLevelClient(
-        RestClient.builder(
-            HttpHost("localhost", 9200, "http")
-        )
-    )
+    private val elasticsearch = RestHighLevelClient(RestClient.builder(elasticsearchHost))
 
     fun put(company: Company) {
         val json = objectMapper.writeValueAsString(company)
@@ -57,4 +53,5 @@ class CompanyService : Closeable {
     override fun close() {
         elasticsearch.lowLevelClient.close()
     }
+
 }
