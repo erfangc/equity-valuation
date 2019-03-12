@@ -9,4 +9,14 @@ data class YahooFinance(
     val summary: Summary,
     val financials: List<Financial>,
     val lastUpdated: Instant
-)
+) {
+
+    fun latestFinancial(): Financial {
+        return financials.sortedByDescending { it.date }.first()
+    }
+
+    fun earliestFinancial(): Financial {
+        return financials.sortedBy { it.date }.first()
+    }
+
+}
