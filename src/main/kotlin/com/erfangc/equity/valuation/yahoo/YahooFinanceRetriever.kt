@@ -1,11 +1,8 @@
 package com.erfangc.equity.valuation.yahoo
 
 import com.erfangc.equity.valuation.yahoo.financials.FinancialsRetriever
-import com.erfangc.equity.valuation.yahoo.summary.Summary
 import com.erfangc.equity.valuation.yahoo.summary.SummaryRetriever
-import org.slf4j.LoggerFactory
-import java.lang.RuntimeException
-import java.text.NumberFormat
+import java.time.Instant
 
 class YahooFinanceRetriever {
 
@@ -17,7 +14,8 @@ class YahooFinanceRetriever {
         return YahooFinance(
             ticker = ticker,
             summary = summary,
-            financials = financials
+            financials = financials,
+            lastUpdated = Instant.now()
         )
     }
 

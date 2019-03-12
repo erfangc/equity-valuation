@@ -1,10 +1,8 @@
 package com.erfangc.equity.valuation.yahoo.financials
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
 data class Financial(
-    @JsonFormat(pattern = "yyyy-MM-dd")
     val date: LocalDate,
     val incomeStatement: Map<String, Double>,
     val balanceSheet: Map<String, Double>,

@@ -1,6 +1,7 @@
 package com.erfangc.equity.valuation.services
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.apache.http.HttpHost
@@ -16,10 +17,12 @@ import java.io.Closeable
 
 class CompanyService : Closeable {
 
-    private val objectMapper = jacksonObjectMapper()
-        .findAndRegisterModules()
-        // important to skip nulls
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+    private val objectMapper =
+        jacksonObjectMapper()
+            .findAndRegisterModules()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+
     private val logger = LoggerFactory.getLogger(CompanyService::class.java)
 
     private val elasticsearch = RestHighLevelClient(

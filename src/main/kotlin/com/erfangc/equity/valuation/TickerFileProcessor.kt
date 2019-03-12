@@ -26,9 +26,12 @@ class TickerFileProcessor : Closeable {
     fun processFile(file: File) {
         val csvParser = CSVParser(file.bufferedReader(), CSVFormat.DEFAULT.withFirstRecordAsHeader())
         val futures = csvParser.records.map { record ->
+
             val ticker = record.get("Symbol")
             val name = record.get("Name")
             val sector = record.get("Sector")
+            val industry = record.get("industry")
+
             // n/a usually implies mutual funds & trust entities that are not real companies
             if (sector != "n/a") {
                 executor.submit {
@@ -38,7 +41,10 @@ class TickerFileProcessor : Closeable {
                         val company = Company(
                             ticker = ticker,
                             yahooFinance = yahooFinance,
-                            derived = runDerivedProcessorChain(yahooFinance)
+                            name = name,
+                            derived = runDerivedProcessorChain(yahooFinance),
+                            sector = sector,
+                            industry = industry
                         )
                         companyService.put(company)
                         val end = System.nanoTime()
