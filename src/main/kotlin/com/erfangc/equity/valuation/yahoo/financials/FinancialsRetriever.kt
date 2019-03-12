@@ -17,10 +17,10 @@ class FinancialsRetriever {
         return incomeStatement.map { (date, metrics) ->
             Financial(
                 date = date,
-                incomeStatement = metrics.mapValues { it.value.toString().toDouble() },
-                balanceSheet = balanceSheet.getOrDefault(date, emptyMap()).mapValues { it.value.toString().toDouble() },
+                incomeStatement = metrics.mapValues { it.value.toString().toDouble() * 1000.0 },
+                balanceSheet = balanceSheet.getOrDefault(date, emptyMap()).mapValues { it.value.toString().toDouble() * 1000.0 },
                 cashflowStatement = cashflowStatement.getOrDefault(date, emptyMap()).mapValues {
-                    it.value.toString().toDouble()
+                    it.value.toString().toDouble() * 1000.0
                 }
             )
         }

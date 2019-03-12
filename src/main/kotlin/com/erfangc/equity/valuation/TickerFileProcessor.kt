@@ -1,8 +1,6 @@
 package com.erfangc.equity.valuation
 
-import com.erfangc.equity.valuation.computers.Derived
-import com.erfangc.equity.valuation.computers.DerivedComputer
-import com.erfangc.equity.valuation.computers.ImpliedGrowthRateComputer
+import com.erfangc.equity.valuation.computers.*
 import com.erfangc.equity.valuation.services.Company
 import com.erfangc.equity.valuation.services.CompanyService
 import com.erfangc.equity.valuation.yahoo.YahooFinance
@@ -21,7 +19,8 @@ class TickerFileProcessor : Closeable {
     private val yahooFinanceRetriever = YahooFinanceRetriever()
     private val executor = Executors.newFixedThreadPool(1)
     private val companyService = CompanyService()
-    private val derivedComputers = listOf<DerivedComputer>(ImpliedGrowthRateComputer())
+    val assumptions = Assumptions(riskFree = 0.0253, equityMarketPremium = 0.08210)
+    private val derivedComputers = listOf(ImpliedGrowthRateComputer(), DCFComputer(assumptions))
 
     fun processFile(file: File) {
         val csvParser = CSVParser(file.bufferedReader(), CSVFormat.DEFAULT.withFirstRecordAsHeader())

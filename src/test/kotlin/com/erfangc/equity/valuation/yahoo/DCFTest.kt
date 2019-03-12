@@ -2,24 +2,50 @@ package com.erfangc.equity.valuation.yahoo
 
 import com.erfangc.equity.valuation.computers.Assumptions
 import com.erfangc.equity.valuation.computers.DCFComputer
+import com.erfangc.equity.valuation.logger
 import com.erfangc.equity.valuation.services.CompanyService
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.apache.commons.csv.CSVFormat
+import org.apache.commons.csv.CSVParser
+import java.io.File
 
-val dcfComputer = DCFComputer(Assumptions(riskFree = 0.015, equityMarketPremium = 0.075))
+// risk free rate == T-bill yield 1 year as of 3/12
+// mrp = average of earning yields from universe of securities
+val assumptions = Assumptions(riskFree = 0.0253, equityMarketPremium = 0.08210)
+val dcfComputer = DCFComputer(assumptions)
 val svc = CompanyService()
 
 fun main() {
-    val ticker = "FB"
-    val company = svc.get(ticker)!!
-    val derived = dcfComputer.compute(yahooFinance = company.yahooFinance, derived = company.derived)
-    val objectMapper = jacksonObjectMapper()
-        .findAndRegisterModules()
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        .writerWithDefaultPrettyPrinter()
+    listOf(
+        "NYSE.csv"
+        , "NASDAQ.csv"
+    )
+        .forEach {
+            val file = File(it)
+            logger.info("Processing tickers from ${file.absolutePath}")
+            val csvParser = CSVParser(file.bufferedReader(), CSVFormat.DEFAULT.withFirstRecordAsHeader())
+            csvParser.records.map { record ->
+                val ticker = record.get("Symbol")
+                logger.info("Running ticker $ticker")
+                try {
+                    runDCFForTicker(ticker)
+                } catch (e: Exception) {
+                    logger.error("Error running ticker $ticker, error: ${e.message}")
+                }
+
+            }
+            csvParser.close()
+            logger.info("Finished processing tickers from ${file.absolutePath}")
+        }
     svc.close()
-    val json = objectMapper.writeValueAsString(derived)
-    println(json)
+}
+
+private fun runDCFForTicker(ticker: String) {
+    val company = svc.get(ticker)
+    if (company != null) {
+        val derived = dcfComputer.compute(yahooFinance = company.yahooFinance, derived = company.derived)
+        svc.put(company.copy(derived = derived))
+        logger.info("Finished ticker $ticker")
+    } else {
+        logger.info("Skipping ticker $ticker")
+    }
 }
