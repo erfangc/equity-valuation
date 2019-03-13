@@ -28,6 +28,10 @@ class TickerProcessor(
     private val assumptions = Assumptions(riskFree = 0.0253, equityMarketPremium = 0.08210)
     private val derivedComputers = listOf(ImpliedGrowthRateComputer(), DCFComputer(assumptions))
 
+    fun processTicker(ticker: String) {
+        processTicker(ProcessTickerRequest(ticker = ticker))
+    }
+
     /**
      * Process the ticker and upload results via Company Service
      */
