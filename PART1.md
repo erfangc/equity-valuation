@@ -1,6 +1,6 @@
 # Where does the stock market think society is headed? (Answered using Kotlin, Elasticsearch) Part I
 
-As far as the investment community is concerned, what is going to be the fastest growing industries in the United States?
+As far as the investment community is concerned, which industries are going to be growing the fastest?
 
 I am intrigued by this question because the future evolution of our society is fundamentally tied to the
 investments we make today. The stock market is perhaps the most famous (or infamous) archetype
@@ -8,24 +8,36 @@ of how our capitalistic society collectively decide on what to invest. The stock
 available by law and reasonably clean.
 
 If this experiment proves fruitful, I will expand the scope of this research to cover
-historical time periods where data is available, and pose & test alternative hypothesis. My ultimate goal is to map out the underlying
-dynamics that powers the evolution of our society. 
+historical time periods where data is available, and pose & test alternative hypothesis. 
 
-Back to the title of this article. 
-
-So, what is expected growth when we are talking about companies and economies? 
-Why does the stock market tell us something about that growth?
+Back to the title of this article. So, what is expected growth? Why does the stock market tell us something about that growth?
 
 When investors suddenly believe a company's profit will grow substantially, the company's stock price would increase
 regardless of the company's profitability today. This logic is simple enough. However, this intuitive relationship between
-growth and stock price is complicated by the fact that _unpredictability_ of profits also affect
-stock prices today. In finance, we say this unpredictability give rise to a _risk premium_ or a required discount
-to compensate for the aforementioned unpredictability. 
-Thus, we must isolate and remove the effect of this risk premium when calculating expected growth. We are going to answer these question using `Kotlin` and scrapping some data from the web
+growth and stock price is complicated by the fact that any _unpredictability_ in those profits also affect
+stock prices today. In finance, this unpredictability give rise to a _risk premium_ or a _required discount_
+to compensate.
+Thus, we must isolate and remove the effect of this risk premium when calculating expected growth. 
+We are going to answer these question using `Kotlin` by scrapping some data from the web
 
-The model we use here is quite boorish and grossly simplified, but there are still two major benefits to doing this exercise:
-1. As part of this exercise we learn how to store company financial statements and metrics in a readily consumable format.
-This should enable us to perform more thorough and nuanced financial analysis in code going forward.
+Skip ahead if you have studied the fundamentals of finance, but if you are unfamiliar with this concept, consider the following bets
+
+- Bet # 1, you win $100, or win $0 with equal probability
+- Bet # 2, you win $45, or $55 with equal probability
+
+If you were selling tickets to participate in these bets, how much do you think the tickets would sell for?
+
+Both bets have an expected payoff of $50, so you'd naturally assume that is what people would be willing to pay for a chance to participate
+in each bet. Except not! Not many people would be willing to lose $50 for sure for a chance to win a bet with an average outcome of $50. 
+If we hold an auction and end up selling one of these bets at $45, the risk premium in dollars would be $5 dollars = ($50 - $45).
+Furthermore, the second bet is way more predictable so it would be discounted less.
+
+This simple principle applies as much to real life investment problems as it does in the contrived example above. Only real life is more complicated, so we
+have to upgrade our models to match.
+
+The model we use here to value stocks is quite boorish and grossly simplified, but there are still two major benefits to doing this exercise:
+1. As part of this exercise we will learn how to store company financial statements and metrics in a easily consumable format.
+This enables us to perform more thorough and nuanced financial analysis going forward.
 2. Simple models applied to large numbers of companies can still yield macroscopic insights. This is true if we assume variations across individual companies
 not captured by the simple models cancel each other out.
 
@@ -43,19 +55,21 @@ We will introduce the topic and go through the code in two parts:
 2. Analyze the summary from the cross-sectional analysis via Elasticsearch
 3. Discuss future steps
 
+If you are inpatient, here is the code https://github.com/erfangc/equity-valuation
+
 ## First a Disclaimer
 
     The content of this article does not constitute advice or recommendation to purchase any specific financial security. 
     By showing you simplified academic models for valuing financial securities I am encouraging you to perform your own research 
     and arrive at independent decisions. Even if you are inspired to invest, please consult a qualified financial professional and consider the risk 
-    and reward appropriate for your personal situation before investing.
+    and reward appropriate for your situation before investing.
     
     All financial models, including (and especially) the ones described in this article, are valid only under 
-    a variety of assumptions, when these assumptions do not hold real life results can departure significantly from
+    a variety of assumptions. When these assumptions are violated, real life results can departure significantly from
     theoretical predictions.
     
-    In fact, a central assumption to the concepts described in this article is that markets are somewhat efficiently
-    pricing these stocks therefore no abnormal profits can be gained from using the tools described here alone 
+    In fact, a central assumption to the concepts described in this article is that markets are *somewhat efficiently*
+    pricing stocks therefore no abnormal profits can be gained from using the tools described here alone.
 
 ## A Crash Course on Stock Valuation
 
@@ -74,30 +88,31 @@ Assuming you just spent that much to buy all of Apple Inc.. So far we have:
 
 Let's break this number down a bit:
 
-The company currently have: $131 billion USD in cash, short-term investments and inventory. This means, if shareholders cleared Apple's bank account, sold all of the stocks & US government bonds Apple owns as well as all
+The company currently have: $131 billion USD in cash, short-term investments and inventory. This means, 
+if shareholders cleared Apple's bank account, sold all of the stocks & US government bonds Apple owns as well as all
 of its excess inventory of iPhones, iPads & MacBooks we would end up with $131 billion dollars. These should be relatively
 easy to sell and monetize
 
 Further, if Apple divested all of its investments in other companies, patents & longer-term government bonds we would
 receive another $141.7 billion in cash. So if we sold every piece of valuable at the company today we'd end up with
-about $365.7 billion in hard cold cash. Apple currently have debts $258 billion ($116 billion due in the next year). 
+about $365.7 billion in hard cold cash. Apple currently have debts of $258 billion ($116 billion due in the next year). 
 
 Assuming we pay down all of Apple's debt with the $365.7 billion we received from liquidating the company, we will end up
 with a net of $107 billion dollars on our hands. Therefore, Apple Inc., if it stopped operating _today_ and closed up shop,
 shareholders would immediately receive $107 billion dollars or about $22 per share.
-Recall that the total valuation of Apple is $879.54 billion, of which only $107 billion or roughly just 12% the net wealth
+Recall that the total valuation of Apple is $879.54 billion, of which only $107 billion or 12% of the valuation
 of the company come from the net cash the company have already pocketed.
 
 With that, let's do a progress check:
 
-|                   |             |
-|---                | ---         |
-| Cost              | $879 Billion|
-| Benefits:         |             |
-| Liquidation Value | 107 Billion |
-| Unexplained       | 772 Billion |
+|                   |              |
+|---                | ---          |
+| Cost              | $879 Billion |
+| Benefits:         |              |
+| Liquidation Value | $107 Billion |
+| Unexplained       | $772 Billion |
 
-Of course, investors are not stupid. No one would trade something that is worth 879.54 billion for something is only worth 107 billion.
+Of course, investors are not stupid. No one would trade something that is worth $879.54 billion for something is only worth $107 billion.
 
 This leaves $772 billion of Apple Inc. valuation unaccounted for. This $772 billion in valuation comes from the profits we expect Apple to earn
 in the future. This is a critically important concept to understand: when you invest in a stock, you are investing in both what the 
@@ -112,9 +127,9 @@ known as the `Dividend Discount Model` and a close variation: the `Growing Perpe
 For a full analysis of Apple's future financial prospects, we would need to project Apple's 
 financial statement going forward in near and long terms. For that exercise, we'd have to make projections on
 
- - Product sales based on historical trends as well as projected competition & consumer trends 
+ - Product sales based on historical trends as well as projected competition & consumer demand 
  - Cost of producing products
- - Research and Development
+ - Research and development
  - Misc costs like administration & taxes
 
 That is a lot to go through for one article, so let's look at an alternative model that only consider the _net effect_ of
@@ -132,16 +147,16 @@ P = E / r # According to the (simplified) dividend discount model
 ``` 
 
 Since Apple is a large and somewhat stable company that tends to perform inline with the broad economy, I would give AAPL
-a required rate of return of roughly equal to that of the market or 8.2%
+a required rate of return of roughly equal to that of the overall market or 8.2%
 
 If you are unfamiliar with required rate of return and risk premiums think of it this way:
 Even if we assume the $59 billion Apple Inc. is earning now can be repeated year after year. Our confidence in that projection decrease
-over time. Plus money made 10 years from now is not worth waiting for as money we can obtain today. Therefore, to give up
+over time. Plus money made 10 years from now is not as worth waiting for as money we can have today. Therefore, to give up
  $879.2 billion dollars today in exchange for a stream of $59 billions, I must "discount" these projections by
-demanding that I make at least 8.2% yearly on average assuming the base of $59 billion yearly come true
+demanding that I make at least 8.2% yearly on average assuming the yearly profit of $59 billion come true.
 
 If you are still unsatisfied, a full introduction to the Time Value of Money and the Capital Market Pricing Model might
-quench your thirst. Spoiler alert, Apple's gigantic size makes it's beta nearly 1
+quench your thirst. Spoiler alert, Apple's gigantic size makes it's beta nearly 1.
 
 Therefore, with `E = 59 billion` and `r = 8.2%` we have `P = 59 billion / 8.2% = 719.5 billion`
 
@@ -208,7 +223,7 @@ Now we begin writing some code
 ### Data Sources
 
 - Yahoo Finance https://finance.yahoo.com/
-- Quandl Fundamental [https://www.quandl.com/databases/SF1]()
+- Quandl Fundamental https://www.quandl.com/databases/SF1
 - Primary Source SEC https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent
 
 We will use Yahoo Finance as they have narrowed down and refined the data originally published by the companies themselves with the SEC
@@ -353,9 +368,9 @@ As a result, getting data can be accomplished easily via calls like ones below:
 
 ```kotlin
 val marketCap = searchTableRows(rows, "Market Cap")
-        val beta3YMonthly = searchTableRows(rows, "Beta (3Y Monthly)")
-        val peRatio = searchTableRows(rows, "PE Ratio (TTM)")
-        val epsTTM = searchTableRows(rows, "EPS (TTM)")
+val beta3YMonthly = searchTableRows(rows, "Beta (3Y Monthly)")
+val peRatio = searchTableRows(rows, "PE Ratio (TTM)")
+val epsTTM = searchTableRows(rows, "EPS (TTM)")
 ```
 
 ### FinancialsRetriever
@@ -511,3 +526,7 @@ Output:
 11:47:46.557 [main] INFO com.erfangc.equity.valuation.yahoo.financials.FinancialsRetriever - Retrieving balance sheet for GS ...
 11:47:47.386 [main] INFO com.erfangc.equity.valuation.computers.ImpliedGrowthRateComputer - GS implied constant growth = -3%, D=25.27, r=0.0928, P=201.12, beta=1.16, D/P=0.12564638027048528
 ```
+
+## Next Steps
+
+Part II
