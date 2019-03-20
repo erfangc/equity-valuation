@@ -43,10 +43,10 @@ at the time of this writing. This means you would need to pay this amount to ful
     
 So far:
 
-|   |   |
-|---|---|
-| Cost | $879 Billion |
-| Benefit | $0 |
+|              |              |
+|---           |---           |
+| Cost         | $879 Billion |
+| Benefit      | $0           |
 | Unexplained  | $879 Billion |
 
 Let's break this number down a bit:
@@ -74,12 +74,12 @@ of the company come from the net cash the company have already pocketed.
 
 With that, let's do a progress check:
 
-|    |     |
-|--- | --- |
-| Cost | $879 Billion |
-| Benefits:  |   |
+|                   |             |
+|---                | ---         |
+| Cost              | $879 Billion|
+| Benefits:         |             |
 | Liquidation Value | 107 Billion |
-| Unexplained| 772 Billion |
+| Unexplained       | 772 Billion |
 
 Of course, investors are not stupid. No one would trade something that is worth 879.54 billion for something is only worth 107 billion.
 
@@ -124,19 +124,19 @@ over time. Plus money made 10 years from now is not worth waiting for as money w
 demanding that I make at least 8.2% yearly on average assuming the base of $59 billion yearly come true
 
 If you are still unsatisfied, a full introduction to the Time Value of Money and the Capital Market Pricing Model might
-quench your thirst. Spoiler alert, Apple's beta of 0.99 makes it nearly perfect!
+quench your thirst. Spoiler alert, Apple's gigantic size makes it's beta nearly 1
 
 Therefore, with `E = 59 billion` and `r = 8.2%` we have `P = 59 billion / 8.2% = 719.5 billion`
 
 Let's recap:
 
-|    |     |
-|--- | --- |
-| Cost | $879 Billion |
-| Benefits:  |   |
-| Liquidation Value | $107 Billion |
-| Future Profits at Current Level | $719.5 Billion |
-| Unexplained| $52 Billion |
+|                                 |                 |
+| ---                             | ---             |
+| Cost                            | $879 Billion    |
+| Benefits:                       |                 |
+| Liquidation Value               | $107 Billion    |
+| Future Profits at Current Level | $719.5 Billion  |
+| Unexplained                     | $52 Billion     |
 
 What this means is that $719.5 billion of the $772 billion valuation is just assuming Apple Inc. can continue to do what
 it's doing today, with no more growth
@@ -162,13 +162,13 @@ collectively expecting Apple Inc. to grow on average less than 1/2 of a percent 
 
 ### Summary of Valuation Exercise
 
-|    |     |
-|--- | --- |
-| Cost | $879 Billion |
-| Benefits:  |   |
-| Liquidation Value | $107 Billion |
-| Future Profits at Current Level | $719.5 Billion |
-| Growth of Future Profits| $52 Billion (growing at 0.55%) |
+|                                 |                                |
+|---                              | ---                            |
+| Cost                            | $879 Billion                   |
+| Benefits:                       |                                |
+| Liquidation Value               | $107 Billion                   |
+| Future Profits at Current Level | $719.5 Billion                 |
+| Growth of Future Profits        | $52 Billion (growing at 0.55%) |
 
 This is unsurprising, as Apple Inc. have recently become so large and have sold so many smart phones, tablets and devices to 
 so many people that it's hard to imagine the company growing fast forever. This low growth rate _expectation_ is indicative
@@ -179,16 +179,25 @@ $390 a share for a market cap of $1.843.75 trillion dollars
 
 On the contrary, if investors believe Apple Inc.' profits will fall below 0.55% long-term, the stock price would decrease as expected
 
-## 
-
 _Note: there is technically a difference between earnings and free-cash-flow (FCF), and for some companies this difference can be quite
 substantial in the short to medium term! We are going to ignore those distinctions for now, as a full discussion of all the nuances
 would turn this 20 minute reading into a full fledged finance class. The examples here are simplified for illustration. For a full introduction on the topic, several courses of material
 and an advanced degree might be unavoidable_
 
-## Does this means I should invest in X industry?
+## The Code
 
-Probably not. The numbers presented here represents expectation assuming current valuation of companies is
-_fair_
+Now we begin writing some code
 
-When prices are _fair_ you can never make "extra" money, at least not long-term over repeated investments
+### Data Sources
+
+- Yahoo Finance https://finance.yahoo.com/
+- Quandl Fundamental [https://www.quandl.com/databases/SF1]()
+- Primary Source SEC https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent
+
+We will use Yahoo Finance as they have narrowed down and refined the data originally published by the companies themselves with the SEC
+
+If you head over to [AAPL summary page on Yahoo](https://finance.yahoo.com/quote/AAPL?ltr=1), you will see something resembling the page below:
+
+![alt text](https://github.com/erfangc/equity-valuation/raw/master/images/aapl-summary.png)
+
+ 
