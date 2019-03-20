@@ -1,33 +1,50 @@
-# Where does the stock market think society is headed? (Answered using Kotlin, Elasticsearch)
+# Where does the stock market think society is headed? (Answered using Kotlin, Elasticsearch) Part I
 
-In this article I try to answer the question, as far as the investment community is concerned,
-what is _going to be_ the fastest growing industries in the United States? I will then discuss some implications
-of these findings
+As far as the investment community is concerned, what is going to be the fastest growing industries in the United States?
+
+I am intrigued by this question because the future evolution of our society is fundamentally tied to the
+investments we make today. The stock market is perhaps the most famous (or infamous) archetype
+of how our capitalistic society collectively decide on what to invest. The stock market has a bonus feature in that data is 
+available by law and reasonably clean.
+
+If this experiment proves fruitful, I will expand the scope of this research to cover
+historical time periods where data is available, and pose & test alternative hypothesis. My ultimate goal is to map out the underlying
+dynamics that powers the evolution of our society. 
+
+Back to the title of this article. 
+
+So, what is expected growth when we are talking about companies and economies? 
+Why does the stock market tell us something about that growth?
 
 When investors suddenly believe a company's profit will grow substantially, the company's stock price would increase
-regardless of the company's profitability today. This logic is simple enough. However, this intuitive relationship between growth and stock price is complicated by the fact that _unpredictability_ of profits also affect
-stock prices _today_. In finance, we say this unpredictability give rise to a _risk premium_ or a required discount
+regardless of the company's profitability today. This logic is simple enough. However, this intuitive relationship between
+growth and stock price is complicated by the fact that _unpredictability_ of profits also affect
+stock prices today. In finance, we say this unpredictability give rise to a _risk premium_ or a required discount
 to compensate for the aforementioned unpredictability. 
 Thus, we must isolate and remove the effect of this risk premium when calculating expected growth. We are going to answer these question using `Kotlin` and scrapping some data from the web
 
-We will introduce the topic and hands-on coding in the following order:
-
-1. Walk through an example of how to compute the growth rate for a single company
-
-2. Show you how to perform the analysis for every company in the United States using Kotlin, JSoup and Yahoo Finance
-
-3. Summarize our data using Elasticsearch
-
 The model we use here is quite boorish and grossly simplified, but there are still two major benefits to doing this exercise:
 1. As part of this exercise we learn how to store company financial statements and metrics in a readily consumable format.
-This should enable us to perform more thorough and nuanced financial analysis in code going forward
+This should enable us to perform more thorough and nuanced financial analysis in code going forward.
 2. Simple models applied to large numbers of companies can still yield macroscopic insights. This is true if we assume variations across individual companies
 not captured by the simple models cancel each other out.
 
-## Disclaimer
+We will introduce the topic and go through the code in two parts:
 
-First, a disclaimer:
-    
+*Part I*
+
+1. Walk through an example of how to compute the growth rate for a single company (no code)
+2. Show you how to perform the analysis using Kotlin, JSoup and Yahoo Finance
+3. Run our analysis on a single company
+
+*Part II*
+
+1. Run our analysis on every single company we can get our hands on
+2. Analyze the summary from the cross-sectional analysis via Elasticsearch
+3. Discuss future steps
+
+## First a Disclaimer
+
     The content of this article does not constitute advice or recommendation to purchase any specific financial security. 
     By showing you simplified academic models for valuing financial securities I am encouraging you to perform your own research 
     and arrive at independent decisions. Even if you are inspired to invest, please consult a qualified financial professional and consider the risk 
@@ -45,9 +62,9 @@ First, a disclaimer:
 Apple Inc. (NASDAQ: AAPL) has a market capitalization of 879.54 billion dollars (186.53 per share X 4.72 billion shares outstanding)
 at the time of this writing. This means you would need to pay this amount to full own the company.
 
-    For $879.54 Billion Dollars, You can Buy Apple Inc. and be entitled to all of its current and feature wealth
+    For $879.54 Billion Dollars, You can Buy Apple Inc. and be entitled to all of its current and future wealth
     
-So far:
+Assuming you just spent that much to buy all of Apple Inc.. So far we have:
 
 |              |              |
 |---           |---           |
@@ -57,16 +74,18 @@ So far:
 
 Let's break this number down a bit:
 
-The company currently have: ~$131 billion USD in cash, short-term investments and inventory. This means, if shareholders cleared Apple's bank account, sold all of the stocks & US government bonds Apple owns as well as all
-of its excess inventory of iPhones, iPads & MacBooks we would end up with ~$131 billion dollars. These should be relatively
+The company currently have: $131 billion USD in cash, short-term investments and inventory. This means, if shareholders cleared Apple's bank account, sold all of the stocks & US government bonds Apple owns as well as all
+of its excess inventory of iPhones, iPads & MacBooks we would end up with $131 billion dollars. These should be relatively
 easy to sell and monetize
 
-Further, if Apple divested all of its investments in other companies, patents & longer-term government bonds we would receive another $141.7 billion
-in cash. So if we sold every piece of valuable at the company today we'd end up with about $365.7 billion in hard cold cash. Apple currently have debts ~$258 billion (~$116 billion due in the next year). 
+Further, if Apple divested all of its investments in other companies, patents & longer-term government bonds we would
+receive another $141.7 billion in cash. So if we sold every piece of valuable at the company today we'd end up with
+about $365.7 billion in hard cold cash. Apple currently have debts $258 billion ($116 billion due in the next year). 
 
 Assuming we pay down all of Apple's debt with the $365.7 billion we received from liquidating the company, we will end up
-with a net of ~$107 billion dollars on our hands. Therefore, Apple Inc., if it stopped operating _today_ and closed up shop, shareholders
-would immediately receive ~107 billion dollars or about ~$22 per share. Recall that the total valuation of Apple is $879.54 billion, of which only $107 billion or roughly just 12% the net wealth
+with a net of $107 billion dollars on our hands. Therefore, Apple Inc., if it stopped operating _today_ and closed up shop,
+shareholders would immediately receive $107 billion dollars or about $22 per share.
+Recall that the total valuation of Apple is $879.54 billion, of which only $107 billion or roughly just 12% the net wealth
 of the company come from the net cash the company have already pocketed.
 
 With that, let's do a progress check:
@@ -104,6 +123,7 @@ these various factors: _profit_ (i.e. earnings)
 In 2018, AAPL's profit (sales - all cost) is roughly $59 billion dollars.
 
 According to the dividend discount model:
+
 ```
 # E = Profit made today (or in the original model, the dividend paid, but we don't have to worry about that for now)
 # r = Required rate of return
@@ -468,4 +488,26 @@ class ImpliedGrowthRateComputer : DerivedComputer {
         }
     }
 }
+```
+
+### Putting it All Together
+
+Next let's run our code for just a single company
+
+```kotlin
+val yahooFinanceRetriever = YahooFinanceRetriever()
+val yahooFinance = yahooFinanceRetriever.retrieve("GS")
+val growthRateComputer = ImpliedGrowthRateComputer()
+val derived = growthRateComputer.compute(yahooFinance)
+```
+
+Output:
+
+```
+11:47:42.619 [main] INFO com.erfangc.equity.valuation.yahoo.summary.SummaryRetriever - Retrieving summary for GS...
+11:47:43.964 [main] INFO com.erfangc.equity.valuation.yahoo.summary.SummaryRetriever - Retrieving profile for GS...
+11:47:45.068 [main] INFO com.erfangc.equity.valuation.yahoo.financials.FinancialsRetriever - Retrieving income statement for GS ...
+11:47:45.902 [main] INFO com.erfangc.equity.valuation.yahoo.financials.FinancialsRetriever - Retrieving cashflow statement for GS ...
+11:47:46.557 [main] INFO com.erfangc.equity.valuation.yahoo.financials.FinancialsRetriever - Retrieving balance sheet for GS ...
+11:47:47.386 [main] INFO com.erfangc.equity.valuation.computers.ImpliedGrowthRateComputer - GS implied constant growth = -3%, D=25.27, r=0.0928, P=201.12, beta=1.16, D/P=0.12564638027048528
 ```
