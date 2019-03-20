@@ -198,6 +198,12 @@ We will use Yahoo Finance as they have narrowed down and refined the data origin
 
 If you head over to [AAPL summary page on Yahoo](https://finance.yahoo.com/quote/AAPL?ltr=1), you will see something resembling the page below:
 
-![alt text](https://github.com/erfangc/equity-valuation/raw/master/images/aapl-summary.png)
+![alt text](https://raw.githubusercontent.com/erfangc/equity-valuation/master/images/aapl-summary.png?token=AFuUHsQg-UVVOWnjAQWhyNWIKCSR02y7ks5ckkO0wA%3D%3D)
 
+### Extracting the data in code
+
+To extract tabular data from within a website (with all the advertisements, extra elements and styling). You must learn to use [XPath](https://developer.mozilla.org/en-US/docs/Web/XPath).
+XPath is a syntax for succinctly navigating a XML tree, which websites are 
+
+To obtain the XPath to the table with the information we want, right clicking on the table (In Chrome), and then choose "Inspect Element"
  
