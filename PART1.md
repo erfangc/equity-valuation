@@ -8,36 +8,39 @@ of how our capitalistic society collectively decide on what to invest. The stock
 available by law and reasonably clean.
 
 If this experiment proves fruitful, I will expand the scope of this research to cover
-historical time periods where data is available, and pose & test alternative hypothesis. 
+historical time periods and test alternative hypothesis. 
 
-Back to the title of this article. So, what is expected growth? Why does the stock market tell us something about that growth?
+Back to the title of this article. So, what is *expected* growth? Why does the stock market tell us something about that growth?
 
 When investors suddenly believe a company's profit will grow substantially, the company's stock price would increase
 regardless of the company's profitability today. This logic is simple enough. However, this intuitive relationship between
-growth and stock price is complicated by the fact that any _unpredictability_ in those profits also affect
-stock prices today. In finance, this unpredictability give rise to a _risk premium_ or a _required discount_
-to compensate.
-Thus, we must isolate and remove the effect of this risk premium when calculating expected growth. 
-We are going to answer these question using `Kotlin` by scrapping some data from the web
+growth and stock price is complicated by the fact that any unpredictability in those profits also affect
+stock prices today. In finance, this unpredictability give rise to a *risk premium* or a required discount to compensate.
+Thus, we must isolate and remove the effect of the risk premium when calculating expected growth. 
+We are going to answer these question using `Kotlin` and by scrapping some data from the web.
 
-Skip ahead if you have studied the fundamentals of finance, but if you are unfamiliar with this concept, consider the following bets
+Skip ahead if you're acquainted with fundamentals of finance, but if you are unfamiliar with this concept, read on.
+
+Consider the following two bets:
 
 - Bet # 1, you win $100, or win $0 with equal probability
 - Bet # 2, you win $45, or $55 with equal probability
 
 If you were selling tickets to participate in these bets, how much do you think the tickets would sell for?
 
-Both bets have an expected payoff of $50, so you'd naturally assume that is what people would be willing to pay for a chance to participate
-in each bet. Except not! Not many people would be willing to lose $50 for sure for a chance to win a bet with an average outcome of $50. 
+Both bets have an expected payoff of $50, so one might naturally assume $50 is what people would be willing to pay for a chance to participate.
+Except not! Not many people would be willing to lose $50 for sure for a chance to win a bet with an average outcome of $50. 
 If we hold an auction and end up selling one of these bets at $45, the risk premium in dollars would be $5 dollars = ($50 - $45).
 Furthermore, the second bet is way more predictable so it would be discounted less.
 
 This simple principle applies as much to real life investment problems as it does in the contrived example above. Only real life is more complicated, so we
 have to upgrade our models to match.
 
-The model we use here to value stocks is quite boorish and grossly simplified, but there are still two major benefits to doing this exercise:
+The model we use here to value stocks is grossly simplified, but there are still two major benefits to doing this exercise:
+
 1. As part of this exercise we will learn how to store company financial statements and metrics in a easily consumable format.
 This enables us to perform more thorough and nuanced financial analysis going forward.
+
 2. Simple models applied to large numbers of companies can still yield macroscopic insights. This is true if we assume variations across individual companies
 not captured by the simple models cancel each other out.
 
@@ -177,6 +180,7 @@ This still leaves about $52 billion dollars of Apple's $879 billion unexplained.
 that this final $52 billion must come from _growth_ in earnings
 
 To make a long story short, this growth can be calculated as:
+
 ```
 # E = Profit made today (or in the original model, the dividend paid, but we don't have to worry about that for now)
 # r = Required rate of return
@@ -516,7 +520,7 @@ val growthRateComputer = ImpliedGrowthRateComputer()
 val derived = growthRateComputer.compute(yahooFinance)
 ```
 
-Output:
+##### CLI Output:
 
 ```
 11:47:42.619 [main] INFO com.erfangc.equity.valuation.yahoo.summary.SummaryRetriever - Retrieving summary for GS...
@@ -527,6 +531,100 @@ Output:
 11:47:47.386 [main] INFO com.erfangc.equity.valuation.computers.ImpliedGrowthRateComputer - GS implied constant growth = -3%, D=25.27, r=0.0928, P=201.12, beta=1.16, D/P=0.12564638027048528
 ```
 
+##### Sample Parsed Data Denormalized
+
+Some historical data skipped for brevity
+
+```json
+{
+  "ticker" : "MSFT",
+  "summary" : {
+    "ticker" : "MSFT",
+    "name" : "MSFT",
+    "marketCap" : 8.98032E11,
+    "beta3YMonthly" : 1.02,
+    "previousClose" : 120.22,
+    "peRatio" : 27.15,
+    "eps" : 4.31,
+    "industry" : "Software - Infrastructure",
+    "sector" : "Technology"
+  },
+  "financials" : [ {
+    "date" : "2018-06-30",
+    "incomeStatement" : {
+      "TotalRevenue" : 1.1036E11,
+      "CostOfRevenue" : 3.8353E10,
+      "GrossProfit" : 7.2007E10,
+      "ResearchDevelopment" : 1.4726E10,
+      "SellingGeneralAndAdministrative" : 2.2223E10,
+      "TotalOperatingExpenses" : 7.5302E10,
+      "OperatingIncomeOrLoss" : 3.5058E10,
+      "TotalOtherIncome/expensesNet" : 1.416E9,
+      "EarningsBeforeInterestAndTaxes" : 3.5058E10,
+      "InterestExpense" : -2.733E9,
+      "IncomeBeforeTax" : 3.6474E10,
+      "IncomeTaxExpense" : 1.9903E10,
+      "NetIncomeFromContinuingOps" : 1.6571E10,
+      "NetIncome" : 1.6571E10,
+      "NetIncomeApplicableToCommonShares" : 1.6571E10
+    },
+    "balanceSheet" : {
+      "CashAndCashEquivalents" : 1.1946E10,
+      "ShortTermInvestments" : 1.21723E11,
+      "NetReceivables" : 2.6481E10,
+      "Inventory" : 2.662E9,
+      "OtherCurrentAssets" : 6.85E9,
+      "TotalCurrentAssets" : 1.69662E11,
+      "LongTermInvestments" : 1.862E9,
+      "PropertyPlantAndEquipment" : 3.6146E10,
+      "Goodwill" : 3.5683E10,
+      "IntangibleAssets" : 8.053E9,
+      "OtherAssets" : 7.442E9,
+      "DeferredLongTermAssetCharges" : 1.369E9,
+      "TotalAssets" : 2.58848E11,
+      "AccountsPayable" : 8.617E9,
+      "Short/currentLongTermDebt" : 5.397E9,
+      "OtherCurrentLiabilities" : 3.8195E10,
+      "TotalCurrentLiabilities" : 5.8488E10,
+      "LongTermDebt" : 7.781E10,
+      "OtherLiabilities" : 3.5707E10,
+      "TotalLiabilities" : 1.7613E11,
+      "CommonStock" : 7.1223E10,
+      "RetainedEarnings" : 1.3682E10,
+      "TreasuryStock" : -2.187E9,
+      "OtherStockholderEquity" : -2.187E9,
+      "TotalStockholderEquity" : 8.2718E10,
+      "NetTangibleAssets" : 3.8982E10
+    },
+    "cashflowStatement" : {
+      "NetIncome" : 1.6571E10,
+      "Depreciation" : 9.9E9,
+      "AdjustmentsToNetIncome" : -3.108E9,
+      "ChangesInAccountsReceivables" : -3.862E9,
+      "ChangesInLiabilities" : 7.07E9,
+      "ChangesInInventories" : -4.65E8,
+      "ChangesInOtherOperatingActivities" : -4.59E8,
+      "TotalCashFlowFromOperatingActivities" : 4.3884E10,
+      "CapitalExpenditures" : -1.1632E10,
+      "Investments" : 6.557E9,
+      "OtherCashFlowsFromInvestingActivities" : -9.8E7,
+      "TotalCashFlowsFromInvestingActivities" : -6.061E9,
+      "DividendsPaid" : -1.2699E10,
+      "NetBorrowings" : -1.0201E10,
+      "OtherCashFlowsFromFinancingActivities" : -9.71E8,
+      "TotalCashFlowsFromFinancingActivities" : -3.359E10,
+      "EffectOfExchangeRateChanges" : 5.0E7,
+      "ChangeInCashAndCashEquivalents" : 4.283E9
+    }
+  }
+  ],
+  "lastUpdated" : "2019-03-22T21:50:20.026Z"
+}
+```
+
 ## Next Steps
 
-Part II
+In Part II we will run this analysis against every single company trading on the New York Stock Exchange (NYSE) and NASDAQ.
+We will save the results of our analysis, as we as the company's financial information into a database (Elasticsearch). Finally,
+we will perform visualization against this new derived data set to understand how the market today is shaped by our expectation
+tomorrow.
